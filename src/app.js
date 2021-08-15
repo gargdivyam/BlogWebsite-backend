@@ -16,14 +16,26 @@ app.use("/images", express.static(path.join(__dirname, "/images")));
 console.log(path.join(__dirname, "/images"));
 
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) =>{
-        cb(null, "images")
-    },
-    filename: (req, file, cb) =>{
-        cb(null, req.body.name)
-    }
-});
+if(process.env.NODE_ENV==='production'){
+    var storage = multer.diskStorage({
+        destination: (req, file, cb)=>{
+            cb(null, path.resolve(__dirname, 'build'))
+        },
+        filename: (req, file, cb) =>{
+            cb(null, req.body.name)
+        }
+    });
+}else{
+    var storage = multer.diskStorage({
+        destination: (req, file, cb) =>{
+            cb(null, "images")
+        },
+        filename: (req, file, cb) =>{
+            cb(null, req.body.name)
+        }
+    });
+}
+
 
 const upload = multer({storage: storage});
 app.post("/api/upload", upload.single("file"), (req, res)=>{
